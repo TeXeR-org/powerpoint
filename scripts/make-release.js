@@ -1,0 +1,23 @@
+// Copies the single packaged exe out to ppt/release/. That file, alone,
+// is the entire distributable. No install scripts, no manifest.xml sitting
+// next to it, nothing else: TeXeR-PPT.exe installs itself on first run.
+//
+// Run `npm run release` from ppt/. It builds everything first.
+const fs = require("fs");
+const path = require("path");
+
+const root = path.join(__dirname, "..");
+const releaseDir = path.join(root, "release");
+const src = path.join(root, "app", "release", "TeXeR-PPT.exe");
+
+if (!fs.existsSync(src)) {
+  console.error(`[texer-ppt] Missing ${src}`);
+  console.error(`[texer-ppt] Run "npm run build" in ppt/ and "npm run build:exe" in ppt/app/ first.`);
+  process.exit(1);
+}
+
+fs.mkdirSync(releaseDir, { recursive: true });
+fs.copyFileSync(src, path.join(releaseDir, "TeXeR-PPT.exe"));
+
+console.log(`[texer-ppt] Release ready: ${path.join(releaseDir, "TeXeR-PPT.exe")}`);
+console.log(`[texer-ppt] That's the entire distributable. Hand it to a user; double-clicking it is the whole install.`);
