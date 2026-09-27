@@ -8,7 +8,7 @@
 
   <!-- IMPORTANT: regenerate this if you ever fork the add-in for a different product. -->
   <Id>8f2d3c1a-6b4e-4a2f-9c3d-1e7a5b8f2d40</Id>
-  <Version>1.0.3.0</Version>
+  <Version>1.0.4.0</Version>
   <ProviderName>TeXeR</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="TeXeR" />

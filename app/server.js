@@ -209,21 +209,52 @@ function killOtherInstances() {
 
 /** Copies the running exe to INSTALL_DIR, retrying once if a previous
  * running copy has the destination file locked. */
+/** Blocks the current thread for `ms` without spawning a subprocess. Used
+ * only in the short, synchronous install flow, never inside serve(). */
+function sleepSync(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+/**
+ * Copies the running exe to INSTALL_DIR.
+ *
+ * The destination can be locked for two different reasons, and a single
+ * immediate retry isn't enough for either:
+ *   1. An older installed copy is still running and holds the file open.
+ *      killOtherInstances() handles this, but the OS does not always
+ *      release the handle the instant the process dies.
+ *   2. Windows Defender (or another antivirus) locks a freshly-downloaded,
+ *      unsigned exe for a moment while it scans it. This happens on a
+ *      completely fresh machine with nothing else running, so there is
+ *      nothing to kill. It clears on its own within a second or two.
+ * Retry with a short backoff instead of surfacing "Install failed" for
+ * something that resolves itself if you just wait.
+ */
 function copySelfIn() {
   fs.mkdirSync(INSTALL_DIR, { recursive: true });
-  try {
-    fs.copyFileSync(process.execPath, INSTALLED_EXE_PATH);
-    return;
-  } catch (e) {
-    // Almost certainly: an older installed copy is currently running and
-    // holds the file open.
+
+  // Graduated backoff: failures observed in the wild alternated between
+  // succeeding and hitting a lock, meaning the real clearing time varies.
+  // Total budget here is roughly 8 seconds worst case.
+  const delaysMs = [200, 300, 400, 600, 800, 1000, 1200, 1500, 1800];
+  let lastError;
+  for (let attempt = 0; attempt <= delaysMs.length; attempt++) {
+    if (attempt === 1) {
+      try {
+        killOtherInstances();
+      } catch {
+        /* nothing else was running */
+      }
+    }
     try {
-      killOtherInstances();
-    } catch {
-      /* nothing else was running; the copy failed for some other reason */
+      fs.copyFileSync(process.execPath, INSTALLED_EXE_PATH);
+      return;
+    } catch (e) {
+      lastError = e;
+      if (attempt < delaysMs.length) sleepSync(delaysMs[attempt]);
     }
   }
-  fs.copyFileSync(process.execPath, INSTALLED_EXE_PATH);
+  throw lastError;
 }
 
 function installSelf() {
@@ -824,8 +855,14 @@ function main() {
     console.log("");
     console.error("  Install failed:", err && err.message ? err.message : err);
     console.error(`  Full details were written to ${LOG_FILE}`);
-    console.error("  Common causes: another security tool blocking reg.exe or certutil,");
-    console.error("  or a work/school PC whose IT policy restricts registry changes.");
+    if (err && err.code === "EBUSY") {
+      console.error("  The install file was locked (often antivirus briefly scanning a new,");
+      console.error("  unsigned exe, or an old copy still running). Wait a few seconds and");
+      console.error("  double-click TeXeR-PPT.exe again.");
+    } else {
+      console.error("  Common causes: another security tool blocking reg.exe or certutil,");
+      console.error("  or a work/school PC whose IT policy restricts registry changes.");
+    }
     pauseBeforeExit(1);
     return;
   }
