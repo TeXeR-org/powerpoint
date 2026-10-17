@@ -34,7 +34,7 @@ async function fetchLocal(settings: Settings, path: string, init?: RequestInit):
   throw firstError instanceof Error
     ? firstError
     : new LocalServerError(
-        "Could not reach the local server. Start ppt/local-server first.",
+        "Could not reach the local server. Start powerpoint/local-server first.",
         "network",
       );
 }
@@ -73,7 +73,7 @@ export async function checkHealth(settings: Settings): Promise<ServerHealth> {
     response = await fetchLocal(settings, "/health", { method: "GET" });
   } catch {
     throw new LocalServerError(
-      "Could not reach the local server. Start ppt/local-server first.",
+      "Could not reach the local server. Start powerpoint/local-server first.",
       "network",
     );
   }
@@ -105,7 +105,7 @@ export async function renderFullLatex(settings: Settings, opts: RenderOptions): 
     });
   } catch {
     throw new LocalServerError(
-      "Could not reach the local server. Start ppt/local-server first.",
+      "Could not reach the local server. Start powerpoint/local-server first.",
       "network",
     );
   }

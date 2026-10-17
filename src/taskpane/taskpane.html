@@ -29,7 +29,7 @@
             ["$$", "$$"],
             ["\\[", "\\]"],
           ],
-          packages: { "[+]": ["ams", "boldsymbol", "cancel", "color", "mhchem"] },
+          packages: { "[+]": ["ams", "boldsymbol", "cancel", "color", "mhchem", "physics", "braket"] },
         },
         svg: { fontCache: "none" },
         startup: { typeset: false },
@@ -78,9 +78,15 @@
     <label id="source-field" class="field">
       <span class="row-label">
         Source
-        <select id="snippet-select" aria-label="Examples">
-          <option value="">Examples</option>
-        </select>
+        <span class="row-tools">
+          <select id="snippet-select" aria-label="Examples">
+            <option value="">Examples</option>
+          </select>
+          <button type="button" id="btn-save-snippet" class="icon-btn small" title="Save as snippet">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+            <span class="sr-only">Save as snippet</span>
+          </button>
+        </span>
       </span>
       <textarea
         id="source"
@@ -95,32 +101,29 @@
       <div class="box-fields">
         <label class="box-control">
           <span class="box-control-label">Type</span>
-          <select id="box-type">
-            <option>Theorem</option>
-            <option>Lemma</option>
-            <option>Proposition</option>
-            <option>Corollary</option>
-            <option>Definition</option>
-            <option>Remark</option>
-            <option>Example</option>
-          </select>
+          <input type="text" id="box-type" list="box-type-options" value="Theorem" spellcheck="false" placeholder="Theorem, Conjecture, ..." />
+          <datalist id="box-type-options"></datalist>
         </label>
         <label class="box-control">
-          <span class="box-control-label">Number</span>
+          <span class="box-control-label">Number <span class="optional"><input type="checkbox" id="box-auto" /> auto</span></span>
           <input type="text" id="box-number" value="1" spellcheck="false" placeholder="1.2" />
         </label>
-        <label class="box-control box-title-field">
-          <span class="box-control-label">Title <span class="optional">optional</span></span>
-          <input type="text" id="box-title" spellcheck="false" placeholder="Universal property" />
+        <label class="box-control">
+          <span class="box-control-label">Style</span>
+          <select id="box-style"></select>
         </label>
       </div>
+      <label class="box-control box-title-row">
+        <span class="box-control-label">Title <span class="optional">optional</span></span>
+        <input type="text" id="box-title" spellcheck="false" placeholder="Universal property" />
+      </label>
       <div class="box-layout-fields">
         <label class="look-item">
           Width
           <span class="stepper">
             <input type="number" id="box-width" min="5" max="500" step="5" value="100" />
             <select id="box-width-unit" aria-label="Width unit">
-              <option value="%">% of line</option>
+              <option value="%">% of width</option>
               <option value="mm">mm</option>
               <option value="cm">cm</option>
               <option value="in">in</option>
@@ -128,17 +131,24 @@
             </select>
           </span>
         </label>
-        <label class="look-item">
-          Colour
-          <input type="color" id="box-color" value="#222b82" />
-        </label>
+        <div class="look-item">
+          Colours
+          <span class="swatches">
+            <label class="swatch" title="Accent"><input type="color" id="box-color" value="#222b82" /><span>Accent</span></label>
+            <label class="swatch" title="Fill"><input type="color" id="box-fill" value="#eef0f8" /><span>Fill</span></label>
+            <button type="button" id="box-fill-auto" class="link-btn" title="Tint the accent toward the slide colour">auto</button>
+          </span>
+        </div>
       </div>
-      <p class="tool-note">Height grows to fit the content at the chosen width. Body text colour lives in Settings.</p>
       <label class="field box-content-field">
         Content
         <textarea id="box-content" rows="4" spellcheck="false" placeholder="Write the statement; $...$ math works here."></textarea>
       </label>
-      <button type="button" id="btn-build-box" class="ghost">Use box source</button>
+      <div class="box-actions">
+        <button type="button" id="btn-build-box" class="ghost">Regenerate source</button>
+        <button type="button" id="btn-save-box-style" class="ghost">Save style...</button>
+      </div>
+      <p class="tool-note">Type any label. Text follows the slide ink; the fill tints toward the slide colour unless you pick one.</p>
     </section>
 
     <section id="tikz-tools" class="workspace-tool hidden" aria-label="TikZ tools">
@@ -155,13 +165,30 @@
     </section>
 
     <section class="look-wrap">
-      <div class="row-label">Look</div>
+      <div class="row-label">Look <span class="optional">for every workspace</span></div>
+      <div class="look">
+        <label class="look-item">
+          Slide
+          <select id="slide-preset" title="The slide you're inserting onto (not this pane)">
+            <option value="light">Light slide</option>
+            <option value="dark">Dark slide</option>
+            <option value="custom">Custom</option>
+          </select>
+        </label>
+        <div class="look-item">
+          Colours
+          <span class="swatches">
+            <label class="swatch" title="Ink: text and lines"><input type="color" id="look-ink" value="#171717" /><span>Ink</span></label>
+            <label class="swatch" title="Paper: the slide background"><input type="color" id="look-paper" value="#ffffff" /><span>Paper</span></label>
+          </span>
+        </div>
+        <label class="look-item">
+          Font
+          <select id="look-font"></select>
+        </label>
+      </div>
       <div class="look">
         <div id="quick-opts" class="look-cluster">
-          <label class="look-item">
-            Color
-            <input type="color" id="math-color" value="#171717" />
-          </label>
           <label class="check">
             <input type="checkbox" id="display-math" checked />
             Display
@@ -216,12 +243,24 @@
     <div class="export">
       <button type="button" id="btn-insert" class="ghost" disabled>Insert picture</button>
       <button type="button" id="btn-insert-svg" class="ghost" disabled>Insert SVG</button>
-      <button type="button" id="btn-download" class="ghost" disabled>Download SVG</button>
-      <button type="button" id="btn-copy" class="ghost" disabled>Copy SVG</button>
+      <div class="menu-wrap">
+        <button type="button" id="btn-export" class="ghost" disabled aria-haspopup="menu" aria-expanded="false">Export &#9662;</button>
+        <div id="export-menu" class="menu hidden" role="menu">
+          <button type="button" role="menuitem" data-export="svg">Save SVG file</button>
+          <button type="button" role="menuitem" data-export="pdf">Save PDF file</button>
+          <button type="button" role="menuitem" data-export="png">Save PNG file</button>
+          <hr />
+          <button type="button" role="menuitem" data-export="copy-svg">Copy SVG</button>
+          <button type="button" role="menuitem" data-export="copy-source">Copy LaTeX source</button>
+        </div>
+      </div>
+      <button type="button" id="btn-edit-selected" class="ghost hidden" disabled title="Load the selected TeXeR picture">Edit selected</button>
+      <button type="button" id="btn-rerender" class="ghost hidden" title="Re-render every TeXeR picture in this presentation with the current Look">Re-render all</button>
     </div>
 
     <nav class="tabs" role="tablist" aria-label="Sections">
       <button type="button" class="tab on" data-tab="recents" role="tab" aria-selected="true">Recents</button>
+      <button type="button" class="tab" data-tab="saved" role="tab" aria-selected="false">Saved</button>
       <button type="button" class="tab" data-tab="settings" role="tab" aria-selected="false">Settings</button>
       <button type="button" class="tab" data-tab="info" role="tab" aria-selected="false">Info</button>
     </nav>
@@ -230,6 +269,15 @@
       <div class="row-label">Recent renders</div>
       <div id="recents-list" class="recents-list"></div>
       <p id="recents-empty" class="hint hidden">Nothing rendered yet. Renders show up here automatically.</p>
+    </section>
+
+    <section data-panel="saved" class="panel-view hidden">
+      <div class="row-label">Saved snippets</div>
+      <div id="saved-list" class="recents-list"></div>
+      <p id="saved-empty" class="hint hidden">Nothing saved yet. Use the save icon next to Examples.</p>
+      <div class="row-label">Box styles</div>
+      <div id="box-presets-list" class="recents-list"></div>
+      <p id="box-presets-empty" class="hint hidden">No saved box styles. Use Save style... in Boxes.</p>
     </section>
 
     <section data-panel="settings" class="panel-view hidden">
@@ -257,9 +305,9 @@
           <option value="embed">WOFF</option>
         </select>
       </label>
-      <label class="inline">
-        Box text color
-        <input type="color" id="set-box-text-color" value="#171717" />
+      <label class="field">
+        System font name
+        <input type="text" id="set-font-name" spellcheck="false" placeholder="e.g. Fira Sans (used when Font is System font)" />
       </label>
       <label class="inline">
         Width (in)

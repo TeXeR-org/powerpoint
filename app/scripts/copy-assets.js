@@ -8,7 +8,7 @@ const src = path.join(__dirname, "..", "..", "dist");
 const dest = path.join(__dirname, "..", "public");
 
 if (!fs.existsSync(src)) {
-  console.error(`[texer-ppt] ${src} does not exist yet. Run "npm run build" in ppt/ first.`);
+  console.error(`[texer-ppt] ${src} does not exist yet. Run "npm run build" in powerpoint/ first.`);
   process.exit(1);
 }
 

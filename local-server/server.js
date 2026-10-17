@@ -18,7 +18,7 @@
  * this exact same compile logic merged with the task pane's own HTTPS
  * host in one process, meant to be packaged into a single .exe. This
  * standalone version is kept for people who prefer running the dev
- * webpack server (`npm run dev-server` in ppt/) instead.
+ * webpack server (`npm run dev-server` in powerpoint/) instead.
  */
 
 const express = require("express");
@@ -133,9 +133,15 @@ function buildStandaloneLatex(source, opts) {
 
   const preamble = [`\\documentclass[preview,border=${border}]{standalone}`];
 
+  // Compares whole names from the comma list. A word-boundary regex treated
+  // \usepackage{tikz-3dplot} as loading "tikz", so tikz was never added and
+  // tikz-3dplot (which doesn't load it) failed to compile.
   const hasPackage = (name) =>
-    new RegExp(`\\\\usepackage(\\[[^\\]]*\\])?\\{[^}]*\\b${name}\\b[^}]*\\}`).test(trimmed) ||
-    new RegExp(`\\\\usepackage(\\[[^\\]]*\\])?\\{[^}]*\\b${name}\\b[^}]*\\}`).test(extraPreamble);
+    [trimmed, extraPreamble].some((text) =>
+      [...text.matchAll(/\\(?:usepackage|RequirePackage)\s*(?:\[[^\]]*\])?\s*\{([^}]*)\}/g)].some((m) =>
+        m[1].split(",").map((p) => p.trim()).includes(name),
+      ),
+    );
 
   if (!hasPackage("tikz")) preamble.push("\\usepackage{tikz}");
   if (!hasPackage("xcolor")) preamble.push("\\usepackage{xcolor}");
@@ -147,7 +153,7 @@ function buildStandaloneLatex(source, opts) {
   const braceDelta = (line) => {
     let delta = 0;
     for (let index = 0; index < line.length; index++) {
-      if (line[index] === "\\\\") {
+      if (line[index] === "\\") {
         index++;
         continue;
       }
@@ -456,6 +462,8 @@ app.post("/compile/svg", requireToken, async (req, res) => {
         return {
           success: true,
           svg: fs.readFileSync(svgPath, "utf-8"),
+          // For Export > PDF in the task pane.
+          pdf: fs.readFileSync(pdfPath).toString("base64"),
           log: lastLog,
           errors: [],
           duration: Date.now() - startTime,

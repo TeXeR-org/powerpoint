@@ -715,7 +715,7 @@ button:disabled {
 /* Top-level tab bar (Editor / Recents / Settings / Info) */
 .tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 2px;
   padding: 2px;
   /* Pushed well clear of the export buttons above, because these are
@@ -866,4 +866,141 @@ button:disabled {
 
 .info-links a:hover {
   color: var(--muted-foreground);
+}
+
+/* Source row: examples + save */
+.row-tools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  max-width: 60%;
+}
+
+.row-label .row-tools select {
+  max-width: 100%;
+}
+
+.icon-btn.small {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.icon-btn.small svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Colour swatches with a caption, used by the Look and the box builder */
+.swatches {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+}
+
+.swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.link-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.link-btn:hover:not(:disabled) {
+  color: var(--foreground);
+}
+
+.link-btn:disabled {
+  text-decoration: none;
+  opacity: 0.5;
+}
+
+.look + .look {
+  margin-top: 10px;
+}
+
+.box-title-row {
+  margin-bottom: 10px;
+}
+
+.box-title-row input {
+  height: 30px;
+}
+
+.box-control-label .optional input {
+  margin: 0 2px 0 6px;
+  vertical-align: -2px;
+}
+
+.box-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+/* Export dropdown */
+.menu-wrap {
+  position: relative;
+}
+
+.menu-wrap > .ghost {
+  width: 100%;
+}
+
+.menu {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  padding: 4px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.12);
+}
+
+.menu button {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 12px;
+  border-radius: calc(var(--radius-sm) - 2px);
+  white-space: nowrap;
+}
+
+.menu button:hover:not(:disabled) {
+  background: var(--accent);
+}
+
+.menu hr {
+  margin: 4px 2px;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* Preview on the Look's paper colour (set inline from the Look). */
+.preview.on-slide {
+  background-image: none;
+}
+
+.bg-toggle[data-bg="slide"] .bg-swatch {
+  background-image: none;
+  background-color: var(--slide-paper, #ffffff);
 }

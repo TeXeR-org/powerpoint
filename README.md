@@ -3,7 +3,7 @@
 LaTeX for Microsoft PowerPoint. No cloud, no server, no account. Renders with the TeX you already have installed and drops it straight onto the slide.
 
 ```
-ppt/
+powerpoint/
   app/              The whole packaged app: one process, serves the task
                     pane (HTTPS, bundled cert) AND the compile API, and
                     installs itself on first run. This is what gets built
@@ -57,7 +57,7 @@ cd app && npm install && cd ..
 npm run release
 ```
 
-Produces `ppt/release/TeXeR-PPT.exe`. That single file is the entire distributable.
+Produces `powerpoint/release/TeXeR-PPT.exe`. That single file is the entire distributable.
 
 ## Releases (CI)
 
@@ -73,7 +73,7 @@ If you're changing the add-in's code, the packaged `app/` build is slower to ite
 **1. Local TeX helper**
 
 ```bash
-cd ppt/local-server
+cd powerpoint/local-server
 # or double-click start.bat (Windows) / start.sh (macOS/Linux)
 npm install
 npm start
@@ -99,7 +99,13 @@ The webpack dev server also proxies `/local-api` → `http://127.0.0.1:47822`, s
 1. Type math (e.g. `\int_0^1 x^2\,dx`) or a `tikzpicture` / `circuitikz` / `chemfig` snippet, or pick one from the **Examples** dropdown.
 2. **Render** (Ctrl+Enter). Quick math is instant; Full LaTeX needs the app running (installed `TeXeR-PPT.exe`, or `local-server` in dev).
 3. **Insert picture** (Ctrl+Shift+Enter) drops a crisp PNG on the current slide.
-4. Optional: **Insert SVG**, **Download SVG**, **Copy SVG**.
+4. Optional: **Insert SVG**, or **Export ▾** (Save SVG / PDF / PNG file, Copy SVG, Copy LaTeX source).
+
+- **Look** applies to every workspace, not just Math. Pick **Light slide**, **Dark slide** or **Custom** (your own ink and paper colours) and a font. Computer Modern stays the default; Latin Modern, Palatino, Times, Libertine, Sans serif, or any installed system font (via XeLaTeX) are the alternatives. The ink is injected as `\color{texerInk}`, so anything you colour explicitly keeps its colour. The pane's own light/dark theme no longer changes the ink, and the preview background follows the slide.
+- **Boxes** take any label (type *Conjecture*, *Claim*, ...), one of five styles (bar, frame, rounded, title bar, plain), and optional accent/fill colours. **Save style...** keeps it as a preset; numbering can run automatically per label.
+- **Saved** holds your own snippets (the save icon next to Examples).
+- **Edit selected / Re-render all** (Microsoft 365 PowerPoint, PowerPointApi 1.5+): select a TeXeR picture to load its source and replace it in place, or re-render every TeXeR picture in the deck with the current Look. On older PowerPoint builds these buttons are hidden.
+- The **TikZ** tab has more starters (commutative diagrams, quantum circuits, Feynman diagrams, 3D, plots, ...) and a library/package picker.
 
 Bare snippets are wrapped in `\documentclass[preview,border=2pt]{standalone}` automatically. A source that already has `\documentclass` is compiled as-is. Lines like `\usepackage{...}` and `\usetikzlibrary{...}` are hoisted into the preamble.
 
@@ -110,8 +116,15 @@ Bare snippets are wrapped in `\documentclass[preview,border=2pt]{standalone}` au
 | Local server URL | Default `http://127.0.0.1:47822` |
 | Token | Printed by the app on startup. The packaged `app/` build fetches it automatically; `local-server` needs it pasted once |
 | Extra preamble | Applied to every Full LaTeX render |
-| Insert width | Physical width on the slide (inches) |
+| Crop border | `standalone` border (default `2pt`) |
+| SVG fonts | Outlines (default) or embedded WOFF |
+| System font name | Used when the Look font is *System font* (compiles with XeLaTeX) |
+| Width (in) | Physical width on the slide (inches) |
 | Raster scale | PNG sharpness (4× is a good default) |
+| Transparent background | PNG without the paper colour behind it |
+| Box styles | Your saved box presets (rename/delete) |
+
+Colours and font live in the **Look** panel, not here, because they apply to every workspace.
 
 ## A real bug this uncovered: dvisvgm vs. modern Ghostscript
 
